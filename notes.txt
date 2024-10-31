@@ -1,0 +1,3 @@
+bikin file go di windows
+
+New-Item -Path . -Name "main.go" -ItemType "File"
