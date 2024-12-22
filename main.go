@@ -34,11 +34,11 @@ func initDatabase() {
 	dbname := os.Getenv("DB_NAME")
 	port := os.Getenv("DB_PORT")
 
-	// Construct the DSN from environment variables
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s",
+	dsn := fmt.Sprintf("host=%s user=%s password='%s' dbname=%s port=%s",
 		host, user, password, dbname, port)
 
-	// Open the database connection
+	fmt.Printf("DSN: %s\n", dsn)
+
 	database.DBConn, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to database!")
@@ -46,20 +46,30 @@ func initDatabase() {
 
 	fmt.Println("Database connected!")
 
-	// Run migrations
 	database.DBConn.AutoMigrate(&models.Todo{})
 	fmt.Println("Migrated DB")
 }
 
+func closeDatabase() {
+    db, err := database.DBConn.DB()
+    if err != nil {
+        log.Fatalf("Failed to get database connection: %v", err)
+    }
+    db.Close()
+}
+
 func setupRoutes(app *fiber.App)  {
+	app.Get("/", helloWorld)
 	app.Get("/todos", models.GetTodos)
+	app.Post("/todos", models.CreateTodo)
 }
 
 func main()  {
 	loadEnv()
 	app := fiber.New()
 	initDatabase()
-	app.Get("/", helloWorld)
+    defer closeDatabase()
+	
 	setupRoutes(app)
 	app.Listen(":8000")
 }
