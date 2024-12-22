@@ -83,3 +83,23 @@ func UpdateTodo(c *fiber.Ctx) error {
 
 	return c.JSON(&todo)
 }
+
+func DeleteTodo(c *fiber.Ctx) error {
+	id := c.Params("id")
+	db := database.DBConn
+	var todo Todo
+
+	result := db.First(&todo, id)
+
+	if result.RowsAffected == 0 {
+		return c.Status(404).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Could not find todo",
+			"data":    nil,
+		})
+	}
+
+	db.Delete(&todo)
+
+	return c.SendStatus(200)
+}
