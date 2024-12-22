@@ -18,6 +18,24 @@ func GetTodos(c *fiber.Ctx) error {
 	return c.JSON(&todos)
 }
 
+func GetTodoById(c *fiber.Ctx) error {
+	id := c.Params("id")
+	db := database.DBConn
+	var todo Todo
+
+	result := db.First(&todo, id)
+
+	if result.RowsAffected == 0 {
+		return c.Status(404).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Could not find todo",
+			"data":    nil,
+		})
+	}
+
+	return c.JSON(&todo)
+}
+
 func CreateTodo(c *fiber.Ctx) error {
 	db := database.DBConn
 	todo := new(Todo)
