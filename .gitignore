@@ -48,7 +48,6 @@ Thumbs.db
 
 # Environment variables and config files
 .env
-.env.*
 
 # Ignore any temporary files or folders
 *.tmp
